@@ -60,6 +60,8 @@ public class QuizActivity extends ActionBarActivity {
         // Call setContentView to inflate a layout and put it on screen.
         setContentView(R.layout.activity_quiz);
 
+        mQuestionTextView = (TextView)findViewById(R.id.question_text_view);
+
         mTrueButton = (Button)findViewById(R.id.true_button);
         mFalseButton = (Button)findViewById(R.id.false_button);
         mNextButton = (Button)findViewById(R.id.next_button);
