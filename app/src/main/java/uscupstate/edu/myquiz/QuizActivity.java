@@ -15,6 +15,7 @@ public class QuizActivity extends ActionBarActivity {
     private Button mTrueButton;
     private Button mFalseButton;
     private Button mNextButton;
+    private Button mPrevButton;
     private TextView mQuestionTextView;
 
     private TrueFalse[] mAnswerKey = new TrueFalse[]
@@ -66,7 +67,15 @@ public class QuizActivity extends ActionBarActivity {
         mFalseButton = (Button)findViewById(R.id.false_button);
         mNextButton = (Button)findViewById(R.id.next_button);
 
-        // listeners
+        mQuestionTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCurrentIndex = (mCurrentIndex + 1 ) % mAnswerKey.length;
+                updateQuestion();
+            }
+        });
+
+        // Button Listeners
         mTrueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,6 +95,15 @@ public class QuizActivity extends ActionBarActivity {
             public void onClick(View v) {
                 // % used to avoid array out of bounds error when you reach end of array
                 mCurrentIndex = (mCurrentIndex + 1) % mAnswerKey.length;
+                updateQuestion();
+            }
+        });
+
+        mPrevButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                // % used to avoid array out of bounds error when you reach end of array
+                mCurrentIndex = (mCurrentIndex - 1) % mAnswerKey.length;
                 updateQuestion();
             }
         });
