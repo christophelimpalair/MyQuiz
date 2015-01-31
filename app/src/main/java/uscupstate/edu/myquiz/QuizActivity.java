@@ -20,7 +20,7 @@ public class QuizActivity extends Activity {
 
     private Button mTrueButton;
     private Button mFalseButton;
-    private Button mPrevButton;
+    private ImageButton mPrevButton;
     private ImageButton mNextButton;
     private TextView mQuestionTextView;
 
@@ -74,6 +74,7 @@ public class QuizActivity extends Activity {
 
         mTrueButton = (Button)findViewById(R.id.true_button);
         mFalseButton = (Button)findViewById(R.id.false_button);
+        mPrevButton = (ImageButton)findViewById(R.id.previous_button);
         mNextButton = (ImageButton)findViewById(R.id.next_button);
 
         mQuestionTextView.setOnClickListener(new View.OnClickListener() {
@@ -112,8 +113,16 @@ public class QuizActivity extends Activity {
             @Override
             public void onClick(View v) {
                 // % used to avoid array out of bounds error when you reach end of array
-                mCurrentIndex = (mCurrentIndex - 1) % mAnswerKey.length;
-                updateQuestion();
+                if (mCurrentIndex != 0 )
+                {
+                    mCurrentIndex = (mCurrentIndex - 1) % mAnswerKey.length;
+                    updateQuestion();
+                } else
+                {
+                    mCurrentIndex = mAnswerKey.length - 1;
+                    updateQuestion();
+                }
+
             }
         });
 
