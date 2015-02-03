@@ -1,6 +1,7 @@
 package uscupstate.edu.myquiz;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,8 +21,11 @@ public class QuizActivity extends Activity {
 
     private Button mTrueButton;
     private Button mFalseButton;
+    private Button mCheatButton;
     private ImageButton mPrevButton;
     private ImageButton mNextButton;
+    boolean mIsCheater;
+
     private TextView mQuestionTextView;
 
     private TrueFalse[] mAnswerKey = new TrueFalse[]
@@ -47,11 +51,22 @@ public class QuizActivity extends Activity {
 
         int messageResId = 0;
 
-        if (userPressedTrue == answerIsTrue)
+        if (mIsCheater)
         {
-            messageResId = R.string.correct_toast;
-        } else {
-            messageResId = R.string.incorrect_toast;
+            if (userPressedTrue == answerIsTrue)
+            {
+                messageResId = R.string.judgement_toast;
+            }
+            else {
+                messageResId = R.string.incorrect_judgement_toast;
+            }
+        }
+        else {
+            if (userPressedTrue == answerIsTrue) {
+                messageResId = R.string.correct_toast;
+            } else {
+                messageResId = R.string.incorrect_toast;
+            }
         }
 
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show();
@@ -66,6 +81,8 @@ public class QuizActivity extends Activity {
         super.onCreate(savedInstanceState);
         // Call setContentView to inflate a layout and put it on screen.
         setContentView(R.layout.activity_quiz);
+
+        mIsCheater = false;
 
         // d stands for Debug
         Log.d(TAG, "onCreate() called");
@@ -105,6 +122,8 @@ public class QuizActivity extends Activity {
             public void onClick(View v) {
                 // % used to avoid array out of bounds error when you reach end of array
                 mCurrentIndex = (mCurrentIndex + 1) % mAnswerKey.length;
+
+                mIsCheater = false;
                 updateQuestion();
             }
         });
@@ -116,13 +135,32 @@ public class QuizActivity extends Activity {
                 if (mCurrentIndex != 0 )
                 {
                     mCurrentIndex = (mCurrentIndex - 1) % mAnswerKey.length;
+
+                    mIsCheater = false;
                     updateQuestion();
                 } else
                 {
                     mCurrentIndex = mAnswerKey.length - 1;
+
+                    mIsCheater = false;
                     updateQuestion();
                 }
 
+            }
+        });
+
+        mCheatButton = (Button)findViewById(R.id.cheat_button);
+        mCheatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "cheat button clicked");
+
+                Intent i = new Intent(QuizActivity.this, CheatActivity.class);
+                Log.d(TAG, "intent created");
+
+                boolean answerIsTrue = mAnswerKey[mCurrentIndex].isTrueQuestion();
+                i.putExtra(CheatActivity.EXTRA_ANSWER_IS_TRUE, answerIsTrue);
+                startActivityForResult(i, 0);
             }
         });
 
@@ -132,6 +170,12 @@ public class QuizActivity extends Activity {
         }
 
         updateQuestion();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        mIsCheater = data.getBooleanExtra(CheatActivity.EXTRA_ANSWER_SHOWN, false);
     }
 
     @Override
