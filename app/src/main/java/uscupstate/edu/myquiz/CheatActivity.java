@@ -41,15 +41,33 @@ public class CheatActivity extends Activity {
         mShowAnswer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mAnswerIsTrue)
-                {
-                    mAnswerTextView.setText(R.string.true_button);
-                }
-                else {
-                    mAnswerTextView.setText(R.string.false_button);
-                }
+            // register that the user cheated
+            setAnswerShownResult(true);
+
+            if (mAnswerIsTrue)
+            {
+                mAnswerTextView.setText(R.string.true_button);
+            }
+            else {
+                mAnswerTextView.setText(R.string.false_button);
+            }
             }
         });
+
+        if (savedInstanceState != null)
+        {
+            // register that the user cheated
+            // prevents from user rotating device and clearing this
+            setAnswerShownResult(true);
+
+            if (mAnswerIsTrue)
+            {
+                mAnswerTextView.setText(R.string.true_button);
+            }
+            else {
+                mAnswerTextView.setText(R.string.false_button);
+            }
+        }
     }
 
     private void setAnswerShownResult(boolean isAnswerShown)
