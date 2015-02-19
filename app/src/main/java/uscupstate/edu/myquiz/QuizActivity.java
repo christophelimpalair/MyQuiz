@@ -18,6 +18,7 @@ public class QuizActivity extends Activity {
 
     private static final String TAG = "QuizActivity";
     private static final String KEY_INDEX = "index";
+    private static final String KEY_CHEATER = "isCheater";
 
     private Button mTrueButton;
     private Button mFalseButton;
@@ -38,6 +39,7 @@ public class QuizActivity extends Activity {
             };
 
     private int mCurrentIndex = 0;
+    private int mCounter = 0;
 
     private void updateQuestion()
     {
@@ -51,7 +53,7 @@ public class QuizActivity extends Activity {
 
         int messageResId = 0;
 
-        if (mIsCheater)
+        if (mAnswerKey[mCurrentIndex].didCheat() || mIsCheater)
         {
             if (userPressedTrue == answerIsTrue)
             {
@@ -82,7 +84,14 @@ public class QuizActivity extends Activity {
         // Call setContentView to inflate a layout and put it on screen.
         setContentView(R.layout.activity_quiz);
 
-        mIsCheater = false;
+        if (savedInstanceState != null)
+        {
+            mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
+            mIsCheater = savedInstanceState.getBoolean(KEY_CHEATER, false);
+            mAnswerKey[mCurrentIndex].didCheat();
+        } else {
+            mIsCheater = false;
+        }
 
         // d stands for Debug
         Log.d(TAG, "onCreate() called");
@@ -123,6 +132,20 @@ public class QuizActivity extends Activity {
                 // % used to avoid array out of bounds error when you reach end of array
                 mCurrentIndex = (mCurrentIndex + 1) % mAnswerKey.length;
 
+                mCounter = 0;
+
+                while (mAnswerKey[mCurrentIndex].didCheat() && mCounter < mAnswerKey.length) {
+                    mCurrentIndex = (mCurrentIndex + 1) % mAnswerKey.length;
+                    mCounter++;
+                }
+
+                if (mAnswerKey[mCurrentIndex].didCheat() && mCounter >= mAnswerKey.length) {
+                    Toast.makeText(QuizActivity.this, R.string.end, Toast.LENGTH_SHORT).show();
+                    mCounter = 0;
+                    return;
+
+                }
+
                 mIsCheater = false;
                 updateQuestion();
             }
@@ -136,11 +159,49 @@ public class QuizActivity extends Activity {
                 {
                     mCurrentIndex = (mCurrentIndex - 1) % mAnswerKey.length;
 
+                    mCounter = 0;
+
+                    while (mAnswerKey[mCurrentIndex].didCheat() && mCounter <= mAnswerKey.length) {
+                        if (mCurrentIndex != 0 ) {
+                            mCurrentIndex = (mCurrentIndex - 1) % mAnswerKey.length;
+                        } else {
+                            mCurrentIndex = mAnswerKey.length - 1;
+                        }
+
+                        mCounter++;
+                    }
+
+                    if (mAnswerKey[mCurrentIndex].didCheat() && mCounter >= mAnswerKey.length) {
+                        Toast.makeText(QuizActivity.this, R.string.end, Toast.LENGTH_SHORT).show();
+                        mCounter = 0;
+                        return;
+
+                    }
+
                     mIsCheater = false;
                     updateQuestion();
                 } else
                 {
                     mCurrentIndex = mAnswerKey.length - 1;
+
+                    mCounter= 0;
+
+                    while (mAnswerKey[mCurrentIndex].didCheat() && mCounter <= mAnswerKey.length) {
+                        if (mCurrentIndex != 0 ) {
+                            mCurrentIndex = (mCurrentIndex - 1) % mAnswerKey.length;
+                        } else {
+                            mCurrentIndex = mAnswerKey.length - 1;
+                        }
+
+                        mCounter++;
+                    }
+
+                    if (mAnswerKey[mCurrentIndex].didCheat() && mCounter >= mAnswerKey.length) {
+                        Toast.makeText(QuizActivity.this, R.string.end, Toast.LENGTH_SHORT).show();
+                        mCounter = 0;
+                        return;
+
+                    }
 
                     mIsCheater = false;
                     updateQuestion();
@@ -164,10 +225,7 @@ public class QuizActivity extends Activity {
             }
         });
 
-        if (savedInstanceState != null)
-        {
-            mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
-        }
+
 
         updateQuestion();
     }
@@ -176,6 +234,9 @@ public class QuizActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         mIsCheater = data.getBooleanExtra(CheatActivity.EXTRA_ANSWER_SHOWN, false);
+
+        if (mIsCheater)
+            mAnswerKey[mCurrentIndex].cheated();
     }
 
     @Override
@@ -238,6 +299,7 @@ public class QuizActivity extends Activity {
         Log.d(TAG, "onSavedInstanceState");
         // Bundle object that maps string keys to values
         savedInstanceState.putInt(KEY_INDEX, mCurrentIndex);
+        savedInstanceState.putBoolean(KEY_CHEATER, mIsCheater);
     }
 
 }

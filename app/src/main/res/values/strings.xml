@@ -4,6 +4,7 @@
     <string name="app_name">MyQuiz</string>
     <string name="action_settings">Settings</string>
     <string name="question_text">Constantinople is the largest city in Turkey.</string>
+    <string name="end">You\'ve reached the end of questions</string>
     <string name="true_button">True</string>
     <string name="false_button">False</string>
     <string name="next_button">Next</string>
